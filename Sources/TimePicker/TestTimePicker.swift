@@ -16,15 +16,18 @@ import SwiftUI
 private struct ContentView: View {
     @State private var times: [Date] = [.init(), .init(), .init()]
     @State private var selectedInterval: TimeInterval = 0
+    @State private var mode: TimePickerMode = .clock
     @FocusState private var focused: Bool
     var body: some View {
         Group {
             // MARK: - Initialize using TimePicker API
             LabeledContent("TimePicker") {
                 Spacer()
+                
                 TimePicker(
                     selection: $times[0],
-                    displayedComponents: [.hour, .minute, .second]
+                    mode:   $mode,
+                    displayedComponents: [.hour, .minute]
                 )
             }
             // MARK: - Initialize using DatePicker API

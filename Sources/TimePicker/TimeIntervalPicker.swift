@@ -19,7 +19,7 @@ struct TimeIntervalPicker: View {
     @Binding var dateComponents: DateComponents
     init(
         component: TimePickerComponents,
-        intervalRange: ClosedRange<TimeInterval> = 0...60,
+        intervalRange: ClosedRange<TimeInterval>,
         selection: Binding<DateComponents>
     ) {
         self.component = component
@@ -180,6 +180,7 @@ struct TimeIntervalPicker: View {
 #Preview {
     TimeIntervalPicker(
         component: .second,
+        intervalRange: 0...59,
         selection: .constant(.init(second: 0))
     )
     .frame(width: 280, height: 144)

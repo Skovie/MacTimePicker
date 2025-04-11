@@ -15,7 +15,8 @@ import SwiftUI
 public extension DatePickerStyle where Self == TimePickerStyle {
     
     static func timeIntervalField(
-        _ interval: Binding<TimeInterval>? = nil
+        _ interval: Binding<TimeInterval>? = nil,
+        _ mode: Binding<TimePickerMode>? = nil
     ) -> TimePickerStyle {
         .init(interval: interval)
     }
@@ -23,17 +24,25 @@ public extension DatePickerStyle where Self == TimePickerStyle {
 
 public struct TimePickerStyle: DatePickerStyle {
     @Binding var interval: TimeInterval
-    public init(interval: Binding<TimeInterval>? = nil) {
+    @Binding var mode: TimePickerMode
+    public init(interval: Binding<TimeInterval>? = nil, mode: Binding<TimePickerMode>? = nil) {
         _interval = interval ?? .init(get: {
             return 0
         }, set: { _ in
             return
         })
+        _mode = mode ?? .init(get: {
+            return .clock
+        }, set: { _ in
+            return
+        })
     }
+   
     public func makeBody(configuration: Configuration) -> some View {
 #if os(macOS)
         TimePicker(
             selection: configuration.$selection,
+            mode: $mode,
             interval: $interval,
             displayedComponents: TimePickerComponents.allCases
         )

@@ -9,16 +9,21 @@ import SwiftUI
 
 public struct TimePicker: View {
     let displayedComponents: [TimePickerComponents]
+
     @Binding var selection: Date
     @Binding var interval: TimeInterval
+    @Binding var mode: TimePickerMode
     @State private var dateComponents: [DateComponents]
     @State private var components: [TimePickerComponents: DateComponents]
+
     public init(
         selection: Binding<Date>,
+        mode: Binding<TimePickerMode>,
         interval: Binding<TimeInterval>? = nil,
         displayedComponents: [TimePickerComponents]
     ) {
         _selection = selection
+        _mode = mode
         _interval = interval ?? .init(get: {
             return -1
         }, set: { _ in
@@ -50,9 +55,11 @@ public struct TimePicker: View {
                 id: \.offset
             ) { component in
                 let element: TimePickerComponents = component.element
+                let intervalRange: ClosedRange<TimeInterval> =  intervalForMode(component:element,mode:mode )
                 let offset: Int = component.offset
                 TimeIntervalPicker(
                     component: element,
+                    intervalRange: intervalRange,
                     selection: $dateComponents[offset]
                 )
                 .focused($focus, equals: component.element)
@@ -144,11 +151,38 @@ public struct TimePicker: View {
         }
         return ":"
     }
+    
+    private func intervalForMode(component: TimePickerComponents, mode: TimePickerMode) -> ClosedRange<TimeInterval> {
+        switch mode {
+           case .clock:
+            switch component {
+                case .hour:
+                    return 0...23
+                case .minute:
+                    return 0...59
+                case .second:
+                    return 0...59
+                }
+            
+           case .timer:
+                switch component {
+                case .hour:
+                    return 0...60
+                case .minute:
+                    return 0...60
+                case .second:
+                    return 0...60
+                }
+         }
+      
+   }
+  
 }
 
 #Preview {
     TimePicker(
         selection: .constant(.now),
+        mode: .constant(.clock),
         displayedComponents: TimePickerComponents.allCases
     )
     .padding()
