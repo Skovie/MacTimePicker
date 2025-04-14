@@ -15,18 +15,25 @@ struct TimeIntervalPicker: View {
     }
     
     let component: TimePickerComponents
+    let pickerMode: TimePickerMode
     let intervalRange: ClosedRange<TimeInterval>
     @Binding var dateComponents: DateComponents
+   
     init(
         component: TimePickerComponents,
+        pickerMode: TimePickerMode,
         intervalRange: ClosedRange<TimeInterval>,
         selection: Binding<DateComponents>
+        
     ) {
         self.component = component
+        self.pickerMode = pickerMode
         self.intervalRange = intervalRange
         _input = .init(wrappedValue: "00")
         _tempInput = .init(wrappedValue: "00")
         _dateComponents = selection
+      
+       
     }
     
     @State private var input: String
@@ -55,7 +62,7 @@ struct TimeIntervalPicker: View {
             .font(.largeTitle)
             .animation(.none) { view in
                 view.padding(2)
-                    .background(isFocused ? .orange : .clear)
+                    .background(isFocused ? .blue : .clear)
                     .clipShape(.rect(cornerRadius: 4))
             }
             .focusable()
@@ -121,6 +128,9 @@ struct TimeIntervalPicker: View {
                     break
                 }
             }
+            .onAppear {
+               setUpUiElements()
+            }
     }
     
     @discardableResult
@@ -150,13 +160,56 @@ struct TimeIntervalPicker: View {
         input = String("0\(String(intValue - 1))".suffix(2))
         return .handled
     }
-    
+   
+    private func setUpUiElements() {
+        if pickerMode == .clock {
+            
+            let date = Date()
+            var calendar = Calendar.current
+            calendar.timeZone = .autoupdatingCurrent
+            let hour = calendar.component(.hour, from: date)
+            let minute = calendar.component(.minute, from: date)
+            let second = calendar.component(.second, from: date)
+            
+            switch component {
+            case .hour:
+                if hour < 10 {
+                    input = String("0\(String(hour))")
+                }else{
+                    input = String("\(String(hour))")
+                }
+              
+            case .minute:
+                if hour < 10 {
+                    input = String("0\(String(minute))")
+                }else{
+                    input = String("\(String(minute))")
+                }
+               
+            case .second:
+                if hour < 10 {
+                    input = String("0\(String(second))")
+                }else{
+                    input = String("\(String(second))")
+                }
+               
+            }
+            
+            dateComponents = .init(
+                hour: component == .hour ? hour : nil,
+                minute: component == .minute ? minute : nil,
+                second: component == .second ? second : nil
+            )
+        }
+    }
     private func setDateComponents(with value: Int) {
-        dateComponents = .init(
-            hour: component == .hour ? value : nil,
-            minute: component == .minute ? value : nil,
-            second: component == .second ? value : nil
-        )
+       
+            dateComponents = .init(
+                hour: component == .hour ? value : nil,
+                minute: component == .minute ? value : nil,
+                second: component == .second ? value : nil
+            )
+        
         print("\(component) -> ", dateComponents)
     }
     
@@ -180,6 +233,7 @@ struct TimeIntervalPicker: View {
 #Preview {
     TimeIntervalPicker(
         component: .second,
+        pickerMode: .clock,
         intervalRange: 0...59,
         selection: .constant(.init(second: 0))
     )

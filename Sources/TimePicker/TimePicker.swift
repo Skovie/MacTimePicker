@@ -59,6 +59,7 @@ public struct TimePicker: View {
                 let offset: Int = component.offset
                 TimeIntervalPicker(
                     component: element,
+                    pickerMode: mode,
                     intervalRange: intervalRange,
                     selection: $dateComponents[offset]
                 )
